@@ -1,0 +1,99 @@
+﻿@model WHITELABEL.Web.Areas.Merchant.Models.MobileRechargeModel
+@{
+    ViewBag.Title = "MobileRecharge";
+    Layout = null;
+}
+@*@using (Ajax.BeginForm("PostMobileRecharge", "MerchantRechargeService", new AjaxOptions { OnSuccess = "OnSuccess", OnFailure = "OnFailure", LoadingElementId = "progress" }, new { area = "Merchant" }))*@
+@using (Ajax.BeginForm("PostMobileRecharge", "MerchantRechargeService", new AjaxOptions { OnSuccess = "OnSuccessMobile", OnFailure = "OnFailureMobile", LoadingElementId = "progressMobile" }, new { area = "Merchant", id = "MobileRecharge" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <div class="clearfix" style="margin-bottom:40px;">
+            <div class="col-md-4"><h5>Mobile Recharge or Bill Payment</h5></div>
+            <div class="col-md-4">
+                <div class="form-inline">
+                    @Html.RadioButtonFor(m => m.PrepaidRecharge, "Prepaid", new { id = "PrepaidRecharge1", Checked = "checked", style = " width:18px; height:18px;" })
+                    @*<input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">*@
+                    <label for="inlineRadio1" style="font-size:18px;">Prepaid</label>
+                </div>
+                <div class="form-inline">
+                    @Html.RadioButtonFor(m => m.PrepaidRecharge, "Postpaid", new { id = "PostpaidRecharge2", style = " width:18px; height:18px; margin-left:40px;" })
+                    @*<input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">*@
+                    <label for="inlineRadio2" style="font-size:18px;">Postpaid</label>
+                </div>
+            </div>
+            <div class="col-md-4"></div>
+           
+        </div>
+
+       
+        <div>
+        <form>
+            <div class="clearfix"></div>
+            <div class="col-md-4">
+                <div class=" floating-label">
+                    
+                        @Html.EditorFor(m=>m.ContactNo, new { htmlAttributes = new { @style=" width:100%; padding:5px;" , placeholder = "Mobile Number" } })                    
+                        @*<input type="text" class="form-control" id="exampleInput1">*@
+                        <label for="exampleInput1"> @*Mobile Number*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.ContactNo, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class=" floating-label">
+                    
+                        @*@Html.AutocompleteFor(model => model.OperatorName, model => model.PRODUCTID, "GetOperatorName", "MerchantRechargeService", false, new { area = "Merchant", htmlAttributes = new {autocomplete = "off" } })*@                        
+                        @Html.EditorFor(m => m.OperatorName, new { htmlAttributes = new { @id = "txtOperator", style = " width:100%; padding:5px;", placeholder = "Operator Name" } })
+                        <input type="hidden" id="hfOperator" name="OperatorId" />
+                        <label for="exampleInput1">@*Operator Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.OperatorName, "", new { @class = "text-danger" })</small></span>
+                    <a href="javascript:void(0)" data-toggle='modal' data-target='.transd' id='transactionvalueid' style="text-decoration:none;"><span style="color:#AB1B5C;  font-weight:200">All Operator List</span></a>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="floating-label">
+                    
+                        @Html.EditorFor(m => m.RechargeAmt, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Amount" } })
+                        @*<input type="text" class="form-control" id="amount">*@
+                        <label for="amount">@*Amount*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.RechargeAmt, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="col-md-1">
+                <input type="submit" value="Pay" class="btn btn-primary btn-lg" id="btnsubmit" />
+            </div>
+    </form>
+    </div>
+    </div>
+}
+
+<div id="progressMobile" class="loading hidden">Loading&#8230;</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#progressMobile').removeClass("hidden");
+        $('#progressMobile').hide();
+    })
+    function OnSuccessMobile(response) {
+        var message = response;
+        $("#MobileRecharge").trigger("reset");
+        bootbox.alert({
+            message: message,
+            size: 'small',
+            callback: function () {
+                console.log(message);
+            }
+        })
+        //alert(message);
+    }
+    function OnFailureMobile(response) {
+        alert("Error occured.");
+    }
+</script>
+<script type="text/javascript">
+    $("#transactionvalueid").click(function () {
+        $('#transactmodal').trigger();
+    });
+</script>

@@ -1,0 +1,86 @@
+﻿@model   WHITELABEL.Web.Areas.Merchant.Models.ElectricityViewModel
+@{
+    ViewBag.Title = "ElectricityBillPayment";
+    //Layout = "~/Areas/Merchant/Views/Shared/_MerchantLayout.cshtml";
+}
+@using (Ajax.BeginForm("PostElectricityBill", "MerchantRechargeService", new AjaxOptions { OnSuccess = "OnSuccess", OnFailure = "OnFailure", LoadingElementId = "progress" }, new { area = "Merchant" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <h5>Electricity Bill Payment</h5>
+        <form>
+            <div class="clearfix"></div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"> </div>*@
+                        @Html.EditorFor(m => m.CustomerId, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Account No" } })
+                        <label for="exampleInput1">@*Account No*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.CustomerId, "", new { @class = "text-danger" })</small></span>
+                   
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @Html.EditorFor(m => m.MobileNo, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Mobile" } })
+                        <label for="amount">@*Mobile*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.MobileNo, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>            
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @Html.EditorFor(m => m.RechargeAmt, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Recharge amt" } })
+                        <label for="exampleInput1">@*Recharge amt*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.RechargeAmt, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @Html.EditorFor(m => m.Service_Name, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Operator Name", id = "txtElectricityOperator" } })
+                        <input type="hidden" id="hfElectricityperator" name="ElectricityoperId" />
+                        <label for="exampleInput1">@*Operator Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.Service_Name, "", new { @class = "text-danger" })</small></span>
+                    
+                    <a href="javascript:void(0)" data-toggle='modal' data-target='.transdElectricity' id='transactionvalueElectricityid' style="text-decoration:none;"><span style="color:#AB1B5C;  font-weight:200">All Operator List</span></a>
+                </div>
+            </div>
+            @*<div class="col-md-2">
+                <a href="javascript:void(0)" data-toggle='modal' data-target='.transdElectricity' id='transactionvalueElectricityid'>All Operator List</a>
+            </div>*@
+            @Html.EditorFor(m => m.geolocation, new { htmlAttributes = new { @class = "form-control",id="Geolocation" } })
+            <div class="clearfix"></div>
+            <input type="submit" value="Pay" class="btn btn-primary btn-lg" id="btnsubmitDTH" />
+
+        </form>
+    </div>
+}
+
+<script>
+
+var x = document.getElementById("demo");
+
+function getLocationElectricity() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+}
+
+    function showPosition(position) {
+    //x.innerHTML = "Latitude: " + position.coords.latitude +
+    //        "<br>Longitude: " + position.coords.longitude;
+        var geolocation = position.coords.latitude.toFixed(6) + "," + position.coords.longitude;
+    //alert(geolocation);
+    $('#Geolocation').val(geolocation);
+}
+
+$(document).ready(function () {
+    getLocationElectricity();
+
+});
+</script>

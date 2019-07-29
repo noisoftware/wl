@@ -1,0 +1,77 @@
+﻿@model WHITELABEL.Web.Areas.Merchant.Models.DatacardRechargeModel
+@{
+    ViewBag.Title = "DatacardRecharge";
+    //Layout = "~/Areas/Merchant/Views/Shared/_MerchantLayout.cshtml";
+    Layout = null;
+}
+@using (Html.BeginForm("PostLindlineRecharge", "MerchantRechargeService", FormMethod.Post, new { area = "Merchant" }))
+{
+
+    <div class="panel-body">
+
+        <h5>Datacard Bill Payment</h5>
+
+        <form>
+            <div class="clearfix"></div>
+
+            <div class="col-md-3">
+                <div class=" floating-label">
+                   
+                        @Html.EditorFor(m => m.DatacardID, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Datacard Number" } })
+                        <label for="exampleInput1">@*Datacard Number.*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.DatacardID, "", new { @class = "text-danger" })</small></span>
+                   
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    
+                        @*<input type="text" id="txtLandlineOperator" name="LandlineOperatorName" class="form-control" />*@
+                        @Html.EditorFor(m => m.OperatorName, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Operator Name", id = "txtDataCard" } })
+                        <input type="hidden" id="hfDataCard" name="DataCardId" />
+                        <label for="exampleInput1">@*Operator Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.OperatorName, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+                @*<select class="selecter">
+                    <option>Chose Operator</option>
+                    <option>JIO</option>
+                    <option>Vodaphone</option>
+                    <option>Airtel</option>
+                </select>*@
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    
+                        @*<input type="text" id="txtLandlineOperator" name="LandlineOperatorName" class="form-control" />*@
+                        @Html.EditorFor(m => m.OperatorCircleName, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Circle Name", id = "txtDataCardCircle1" } })
+                        <input type="hidden" id="hftxtDataCardCircle1" name="txtDataCardCircleId1" />
+                        <label for="exampleInput1">@*Circle Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.OperatorCircleName, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+                    @*<select class="selecter">
+                <option>Chose Circle</option>
+                <option>JIO</option>
+                <option>Vodaphone</option>
+                <option>Airtel</option>
+            </select>*@
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @*<input type="text" class="form-control" id="amount">*@
+                        @Html.EditorFor(m => m.RechargeAmt, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Amount" } })
+                        <label for="amount">@*Amount*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.RechargeAmt, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="clearfix"></div>
+
+            <button type="submit" class="btn btn-primary btn-lg">Pay</button>
+
+        </form>
+    </div>
+
+}

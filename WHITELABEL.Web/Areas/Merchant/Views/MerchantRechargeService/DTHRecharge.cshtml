@@ -1,0 +1,58 @@
+﻿@model WHITELABEL.Web.Areas.Merchant.Models.MobileRechargeModel
+@{
+    ViewBag.Title = "DTHRecharge";
+    Layout = null;
+    //Layout = "~/Areas/Merchant/Views/Shared/_MerchantLayout.cshtml";
+}
+
+@using (Ajax.BeginForm("POSTDTHRecharge", "MerchantRechargeService", new AjaxOptions { OnSuccess = "OnSuccess", OnFailure = "OnFailure", LoadingElementId = "progress" }, new { area = "Merchant" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <h5>DTH Bill Payment</h5>
+        <form>
+            <div class="clearfix"></div>
+            <div class="col-md-5">
+                <div class=" floating-label">
+                    
+                        @*<input type="text" class="form-control" id="exampleInput1">*@
+                        @Html.EditorFor(m=>m.ContactNo, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Registered Mobile No. / Viewing Card No." } })
+                        <label for="exampleInput1">@*Registered Mobile No. / Viewing Card No.*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.ContactNo, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class=" floating-label">
+                    
+                        @Html.EditorFor(m => m.RechargeAmt, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Amount" } })
+                        @*<input type="text" class="form-control" id="amount">*@
+                        <label for="amount">@*Amount*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.RechargeAmt, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    
+                        @Html.EditorFor(m => m.OperatorName, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Operator Name", id = "txtDTHOperator" } })
+                        @*<input type="text" id="txtDTHOperator" name="DTHOperatorName" class="form-control" />*@
+                        <input type="hidden" id="hfDTHOperator" name="DTHOperatorId" />
+                        <label for="exampleInput1">@*Operator Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.OperatorName, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+                @*<select class="selecter">
+                    <option>Chose Operator</option>
+                    <option>JIO</option>
+                    <option>Vodaphone</option>
+                    <option>Airtel</option>
+                </select>*@
+            </div>
+            <div class="clearfix"></div>
+            <input type="submit" value="Pay" class="btn btn-primary btn-lg" id="btnsubmitDTH" />
+            @*<button type="submit" class="btn btn-primary btn-lg">Pay</button>*@
+
+        </form>
+    </div>
+}

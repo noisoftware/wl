@@ -1,0 +1,64 @@
+﻿@using NonFactors.Mvc.Grid;
+@{
+    ViewBag.Title = "Dashboard for whitelabel";
+    Layout = "~/Areas/PowerAdmin/Views/Shared/_PowerAdminLayout.cshtml";
+}
+
+<div class="form-horizontal padding-top-20">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel">
+                <div class="panel-heading text-center">
+                    <div class="panel-title ">
+                        <h3> Member Details</h3>
+                        <div class="clearfix"></div>
+                    </div>
+                </div><!--.panel-heading-->
+                <div class="panel-body">
+                    <div class="row example-row">
+                        @Html.AjaxGrid(Url.Action("MemberGrid", "PowerAdminHome", new { area = "PowerAdmin" }))
+                    </div><!--.row-->
+                </div><!--.panel-body-->
+            </div><!--.panel-->
+        </div><!--.col-md-6-->
+        <div class="col-md-6">
+            <div class="panel">
+                <div class="panel-heading text-center">
+                    <div class="panel-title ">
+                        <h3>Member Requisition</h3>
+                        <div class="clearfix"></div>
+                    </div>
+                </div><!--.panel-heading-->
+                <div class="panel-body">
+                    <div class="row example-row">
+                        @Html.AjaxGrid(Url.Action("RequisitionGrid", "PowerAdminHome", new { area = "PowerAdmin" }))
+                    </div><!--.row-->
+                </div><!--.panel-body-->
+            </div><!--.panel-->
+        </div><!--.col-md-6-->
+    </div><!--.row-->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel">
+                <div class="panel-heading text-center">
+                    <div class="panel-title ">
+                        <h3> Power Admin Bank Details</h3>
+                        <div class="clearfix"></div>
+                    </div>
+                </div><!--.panel-heading-->
+                <div class="panel-body">
+                    <div class="row example-row">
+
+                        @Html.AjaxGrid(Url.Action("BankDetailsGrid", "PowerAdminHome", new { area = "PowerAdmin" }))
+                    </div><!--.row-->
+                </div><!--.panel-body-->
+            </div><!--.panel-->
+        </div><!--.col-md-6-->
+
+        <div class="col-md-6">
+            
+        </div>
+    </div>
+    <!--.row-->
+</div>
+

@@ -1,0 +1,120 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/PowerAdmin/Views/Shared/_PowerAdminLayout.cshtml";
+}
+
+<div class="form-horizontal padding-top-20">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel">
+                <div class="panel-heading text-center">
+                    <div class="panel-title ">
+                        <h3> White Level Member Details</h3>
+                        <div class="clearfix"></div>
+                    </div>
+                </div><!--.panel-heading-->
+                <div class="panel-body">
+                    <div class="row example-row">
+
+                        @if (ViewBag.whitelevel != null)
+                        {
+                            <table class="table table-bordered table-responsive table-hover">
+                                <tr>
+                                    <th>User Name </th>
+                                    <th>Join Date </th>
+                                </tr>
+                                @foreach (var d in ViewBag.whitelevel)
+                                {
+                                    <tr>
+                                        <td>@d.User_Name</td>
+                                        <td>
+                                            @Html.FormatValue((object)Convert.ChangeType(@d.JOINING_DATE, typeof(object)),
+                                                    "{0: yyyy-MM-dd}")
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        }
+
+                    </div><!--.row-->
+                </div><!--.panel-body-->
+            </div><!--.panel-->
+        </div><!--.col-md-6-->
+        <div class="col-md-6">
+            <div class="panel">
+                <div class="panel-heading text-center">
+                    <div class="panel-title ">
+                        <h3> White Level Member Requisition Details</h3>
+                        <div class="clearfix"></div>
+                    </div>
+                </div><!--.panel-heading-->
+                <div class="panel-body">
+                    <div class="row example-row">
+                        @if (ViewBag.RequisitionList != null)
+                        {
+                            <table class="table table-bordered table-responsive table-hover">
+                                <tr>
+                                    <th>Transaction No </th>
+                                    <th>User</th>
+                                    <th>Request Date </th>
+                                </tr>
+                                @foreach (var d in ViewBag.RequisitionList)
+                                {
+                                    <tr>
+                                        <td>@d.TransactionID</td>
+                                        <td>@d.TransUserName</td>
+                                        <td>
+                                            @Html.FormatValue((object)Convert.ChangeType(@d.TransDate, typeof(object)),
+                                                    "{0: yyyy-MM-dd}")
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        }
+                    </div><!--.row-->
+                </div><!--.panel-body-->
+            </div><!--.panel-->
+        </div><!--.col-md-6-->
+    </div><!--.row-->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel">
+                <div class="panel-heading text-center">
+                    <div class="panel-title ">
+                        <h3> Power Admin Bank Details</h3>
+                        <div class="clearfix"></div>
+                    </div>
+                </div><!--.panel-heading-->
+                <div class="panel-body">
+                    <div class="row example-row">
+                        @if (ViewBag.BankDetailsList != null)
+                        {
+                            <table class="table table-bordered table-responsive table-hover">
+                                <tr>
+                                    <th>Bank Name </th>
+                                    <th>Account No.</th>
+                                    <th>Status</th>
+                                </tr>
+                                @foreach (var d in ViewBag.BankDetailsList)
+                                {
+                                    <tr>
+                                        <td>@d.BANK</td>
+                                        <td>@d.ACCOUNT_NO</td>
+                                        <td>@(d.ISDELETED==0?"Active":"Deactive")</td>
+                                    </tr>
+                                }
+                            </table>
+                        }
+                    </div><!--.row-->
+                </div><!--.panel-body-->
+            </div><!--.panel-->
+        </div><!--.col-md-6-->
+
+        <div class="col-md-6">
+            
+        </div>
+    </div>
+    <!--.row-->
+</div>
+

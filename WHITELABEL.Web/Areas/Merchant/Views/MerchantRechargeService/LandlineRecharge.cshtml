@@ -1,0 +1,95 @@
+﻿@model WHITELABEL.Web.Areas.Merchant.Models.LandlineRecharge
+@{
+    ViewBag.Title = "LandlineRecharge";
+    Layout = null;
+    //Layout = "~/Areas/Merchant/Views/Shared/_MerchantLayout.cshtml";
+}
+
+@*@using (Html.BeginForm("PostLindlineRecharge", "MerchantRechargeService", FormMethod.Post, new { area = "Merchant" }))*@
+@using (Ajax.BeginForm("PostLindlineRecharge", "MerchantRechargeService", new AjaxOptions { OnSuccess = "OnSuccess", OnFailure = "OnFailure", LoadingElementId = "progress" }, new { area = "Merchant" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <h5>Landline Bill Payment</h5>
+        <form>
+            <div class="clearfix"></div>
+            <div class="col-md-5">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @*<input type="text" class="form-control" id="exampleInput1">*@
+                        @Html.EditorFor(m => m.ContactNo, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Registered Mobile No. / Viewing Card No." } })
+                        <label for="exampleInput1">@*Registered Mobile No. / Viewing Card No.*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.ContactNo, "", new { @class = "text-danger" })</small></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @*<input type="text" class="form-control" id="amount">*@
+                        @Html.EditorFor(m => m.RechargeAmt, new { htmlAttributes = new { @style = " width:100%; padding:5px;", placeholder = "Amount" } })
+                        <label for="amount">@*Amount*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.RechargeAmt, "", new { @class = "text-danger" })</small></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @*<input type="text" id="txtLandlineOperator" name="LandlineOperatorName" class="form-control" />*@
+                        @*@Html.EditorFor(m => m.OperatorName, new { htmlAttributes = new { @class = "form-control" , id = "txtLandlineOperator" } })*@
+                        @Html.EditorFor(m => m.OperatorName, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Operator Name", id = "txtLandlineOperator" } })
+                        <input type="hidden" id="hfLandlineOperator" name="LandlineOperatorId" />
+                        <label for="exampleInput1">@*Operator Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.OperatorName, "", new { @class = "text-danger" })</small></span>
+                </div>
+                @*<select class="selecter">
+                        <option>Chose Operator</option>
+                        <option>JIO</option>
+                        <option>Vodaphone</option>
+                        <option>Airtel</option>
+                    </select>*@
+            </div>
+            <div class="clearfix"></div>
+
+            <div class="col-md-5">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @*<input type="text" class="form-control" id="exampleInput1">*@
+                        @Html.EditorFor(m => m.AccountNo, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Account No" } })
+                        <label for="exampleInput1">@*Account No.*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.AccountNo, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @*<input type="text" class="form-control" id="amount">*@
+                        @Html.EditorFor(m => m.CircleName, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Circle Name" } })
+                        <label for="amount">@*Circle Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.CircleName, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @*<input type="text" id="txtLandlineOperator" name="LandlineOperatorName" class="form-control" />*@
+                        @*@Html.EditorFor(m => m.OperatorName, new { htmlAttributes = new { @class = "form-control" , id = "txtLandlineOperator" } })*@
+                        @Html.EditorFor(m => m.STDCode, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Circle Name" } })
+                        <label for="exampleInput1">@*STD Code*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.STDCode, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+                @*<select class="selecter">
+                        <option>Chose Operator</option>
+                        <option>JIO</option>
+                        <option>Vodaphone</option>
+                        <option>Airtel</option>
+                    </select>*@
+            </div>
+
+            @*<button type="submit" class="btn btn-primary btn-lg">Pay</button>*@
+            <input type="submit" value="Pay" class="btn btn-primary btn-lg" id="btnsubmit" />
+        </form>
+    </div>
+}

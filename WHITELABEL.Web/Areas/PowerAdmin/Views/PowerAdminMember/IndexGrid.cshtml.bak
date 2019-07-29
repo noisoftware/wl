@@ -1,0 +1,18 @@
+﻿@using NonFactors.Mvc.Grid;
+@using WHITELABEL.Web.Helper;
+@*@model IEnumerable<WHITELABEL.Data.Models.TBL_MASTER_MEMBER>*@
+@model IGrid<WHITELABEL.Data.Models.TBL_MASTER_MEMBER>
+@{
+    ViewBag.Title = "IndexGrid";
+    //Layout = "~/Areas/PowerAdmin/Views/Shared/_PowerAdminLayout.cshtml";
+}
+
+@(new HtmlGrid<WHITELABEL.Data.Models.TBL_MASTER_MEMBER>(Html, Model))
+
+<style>
+    .RowColorchange {
+        background-color: sandybrown;
+    }
+</style>
+
+
