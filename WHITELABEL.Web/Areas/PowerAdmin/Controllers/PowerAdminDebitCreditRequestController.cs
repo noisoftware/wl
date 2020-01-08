@@ -86,7 +86,7 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
 
                     var obj = obj_bal;
                     var mem_id = Request.Form["memberDomainId"].ToString();
-                    long memberid = long.Parse(mem_id);
+                    long memberid = long.Parse(mem_id==""? Convert.ToString(memid.MEM_ID): mem_id);
 
                     decimal closingamt = 0;
                     decimal Openingamt = 0;
@@ -107,6 +107,12 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
                             AddAmount = closingamt - decimal.Parse(obj_bal.AMOUNT.ToString());
                         }
                     }
+                    else
+                    {
+                        closingamt = obj_bal.AMOUNT;
+                        AddAmount= obj_bal.AMOUNT;
+                    }
+
                     TBL_ACCOUNTS objaccnt = new TBL_ACCOUNTS()
                     {
                         API_ID = 0,

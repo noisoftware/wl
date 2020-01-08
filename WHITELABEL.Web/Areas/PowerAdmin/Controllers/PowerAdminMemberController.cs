@@ -336,10 +336,10 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
                         CheckUser.ADDRESS = value.ADDRESS;
                         CheckUser.CITY = value.CITY;
                         CheckUser.PIN = value.PIN;
-                       // CheckUser.EMAIL_ID = value.EMAIL_ID;
+                        CheckUser.EMAIL_ID = value.EMAIL_ID;
                         CheckUser.SECURITY_PIN_MD5 = value.SECURITY_PIN_MD5;
                         CheckUser.BLOCKED_BALANCE = value.BLOCKED_BALANCE;
-                        CheckUser.BALANCE = value.BLOCKED_BALANCE;
+                        //CheckUser.BALANCE = value.BLOCKED_BALANCE;
                         db.Entry(CheckUser).State = System.Data.Entity.EntityState.Modified;
                         await db.SaveChangesAsync();
                         ViewBag.savemsg = "Data Updated Successfully";
@@ -531,8 +531,8 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
             grid.Columns.Add(model => model.MEMBER_NAME).Titled("Name").Filterable(true).Sortable(true);
             grid.Columns.Add(model => model.COMPANY).Titled("Company").Filterable(true).Sortable(true);
             grid.Columns.Add(model => model.MEMBER_MOBILE).Titled("Mobile").Filterable(true).Sortable(true);
-            //grid.Columns.Add(model => model.BALANCE).Titled("BALANCE").Filterable(true).Sortable(true);
-            grid.Columns.Add(model => model.BLOCKED_BALANCE).Titled("Balance").Filterable(true).Sortable(true);
+            grid.Columns.Add(model => model.BALANCE).Titled("BALANCE").Filterable(true).Sortable(true);
+            //grid.Columns.Add(model => model.BLOCKED_BALANCE).Titled("Balance").Filterable(true).Sortable(true);
             //grid.Columns.Add(model => model.MEM_ID).Titled("").Encoded(false).Filterable(false).Sortable(false)
             //     .RenderedAs(model => "<div class='btn-group btn-group-xs' style='width:280px'><a href='javascript:void(0)' class='btn btn-denger' onclick='SendMailToMember(" + model.MEM_ID + ");return 0;'>Password</a><a href='PowerAdminMember/CreateMember?memid=" + Encrypt.EncryptMe(model.MEM_ID.ToString()) + "' class='btn btn-primary'>Edit</a><a href='Hosting/HostingDetails?memid=" + Encrypt.EncryptMe(model.MEM_ID.ToString()) + "' class='btn btn-primary'>Hosting</a><a href='Service/ServiceDetails?memid=" + Encrypt.EncryptMe(model.MEM_ID.ToString()) + "' class='btn btn-primary'>Service</a></div>");
             grid.Columns.Add(model => model.MEM_ID).Titled("").Encoded(false).Filterable(false).Sortable(false)
@@ -577,7 +577,23 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
                 return Json(new { result = "available" });
             }
         }
-        
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> CheckMobileNoAvailability(string mobile)
+        {
+            var context = new DBContext();
+            var User = await context.TBL_MASTER_MEMBER.Where(model => model.MEMBER_MOBILE == mobile).FirstOrDefaultAsync();
+            if (User != null)
+            {
+                return Json(new { result = "unavailable" });
+            }
+            else
+            {
+                return Json(new { result = "available" });
+            }
+        }
+
         [AllowAnonymous]
         [HttpPost]
         public JsonResult IsAlreadySigned(string EMAIL_ID)

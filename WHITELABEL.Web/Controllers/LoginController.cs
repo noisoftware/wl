@@ -59,16 +59,12 @@ namespace WHITELABEL.Web.Controllers
         {
             SystemClass sclass = new SystemClass();
             string userID = sclass.GetLoggedUser();
-            //var userpass = "india123";
-            //userpass = userpass.GetPasswordHash();
-            //if (Session["PowerAdminUserId"] ==null)
-            //{
             using (var db = new DBContext())
             {
-                var GetUser = await db.TBL_AUTH_ADMIN_USERS.FirstOrDefaultAsync(x => x.USER_EMAIL == User.Email);
+                var GetUser = await db.TBL_AUTH_ADMIN_USERS.FirstOrDefaultAsync(x => x.USER_MOBILE == User.MEMBER_MOBILE);
                 if (GetUser != null)
                 {
-                    if (!GetUser.ACTIVE_USER || !GetUser.USER_PASSWORD_MD5.VerifyHashedPassword(User.Password))
+                    if (!GetUser.ACTIVE_USER || GetUser.USER_PASSWORD_MD5 != User.Password)
                     {
                         ViewBag.Message = "Invalid Credential or Access Denied";
                         FormsAuthentication.SignOut();
@@ -84,14 +80,12 @@ namespace WHITELABEL.Web.Controllers
                         AuthCookie = System.Web.Security.FormsAuthentication.GetAuthCookie(GetUser.USER_NAME + "||" + Encrypt.EncryptMe(GetUser.USER_ID.ToString()), true);
                         AuthCookie.Expires = DateTime.Now.Add(new TimeSpan(130, 0, 0, 0));
                         Response.Cookies.Add(AuthCookie);
-                        //return RedirectToAction("Index", "login", new { area = "" });
-                        //Response.Redirect(FormsAuthentication.GetRedirectUrl(GetUser.USER_NAME.ToString(), true));
                         return RedirectToAction("Index", "PowerAdminHome", new { area = "PowerAdmin" });
                     }
                 }
                 else
                 {
-                    var GetMember = await db.TBL_MASTER_MEMBER.SingleOrDefaultAsync(x => x.EMAIL_ID == User.Email && x.User_pwd == User.Password && x.ACTIVE_MEMBER == true);
+                    var GetMember = await db.TBL_MASTER_MEMBER.SingleOrDefaultAsync(x => x.MEMBER_MOBILE == User.MEMBER_MOBILE && x.User_pwd == User.Password && x.ACTIVE_MEMBER == true);
                     if (GetMember != null)
                     {
                         if (GetMember.MEMBER_ROLE == 1)
@@ -215,17 +209,8 @@ namespace WHITELABEL.Web.Controllers
                         ViewBag.Message = "Invalid Credential or Access Denied";
                         return View();
                     }
-
-                    //ViewBag.Message = "Invalid Credential or Access Denied";
-                    //return View();
                 }
             }
-            //}
-            //else
-            //{
-            //    Response.RedirectToRoute("Home", "Index");
-            //}
-            return View();
         }
 
         [AllowAnonymous]

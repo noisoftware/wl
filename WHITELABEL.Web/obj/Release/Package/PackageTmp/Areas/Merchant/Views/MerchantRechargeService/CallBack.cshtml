@@ -1,0 +1,34 @@
+﻿@model WHITELABEL.Web.Areas.Merchant.Models.MobileRechargeModel
+@{
+    ViewBag.Title = "MobileRechargeCallBackUrl";
+    Layout = null;
+}
+
+
+<div id="progressMobile" class="loading hidden">Loading&#8230;</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+       // $('#progressMobile').removeClass("hidden");
+       // $('#progressMobile').hide();
+    })
+    function OnSuccessMobile(response) {
+        //var message = response;
+        //$("#MobileRecharge").trigger("reset");
+        //bootbox.alert({
+        //    message: message,
+        //    size: 'small',
+        //    callback: function () {
+        //        console.log(message);
+        //    }
+        //})
+        //alert(message);
+    }
+    function OnFailureMobile(response) {
+        alert("Error occured.");
+    }
+</script>
+<script type="text/javascript">
+    //$("#transactionvalueid").click(function () {
+    //    $('#transactmodal').trigger();
+    //});
+</script>

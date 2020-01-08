@@ -13,7 +13,7 @@
         public string PostpaidRecharge { get; set; }
         [Required]
         [Display(Name = "Contact No")]
-        [MaxLength(10, ErrorMessage = "Customer ID is not greater then 10 digit")]
+        [MaxLength(11, ErrorMessage = "Customer ID is not greater then 11 digit")]
         [MinLength(10, ErrorMessage = "Customer ID is not less then 10 digit")]
         [RegularExpression("^[0-9]*$", ErrorMessage = "Mobile must be number")]
         public string ContactNo { get; set; }

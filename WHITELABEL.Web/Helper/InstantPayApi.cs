@@ -15,13 +15,34 @@ namespace WHITELABEL.Web.Helper
         public static string root = "https://www.instantpay.in";
         public static string token = "a1835840ab7df82c4b44947999e4f9cb";
 
-        //public static string ApiUrl = " https://services.apiscript.in/rechargetest";
-        public static string ApiUrl = " https://services.apiscript.in/recharge";
+        //public static string ApiUrl = "https://services.apiscript.in/rechargetest";
+        public static string ApiUrl = "https://services.apiscript.in";
+
 
         //Encode token
-        public static string ApiToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.IntcIlRpbWVTdGFtcFwiOlwiMTU2NDA1NjI0OFwiLFwiRW1haWxJRFwiOlwiam95ZGVlcG5haWhhdGkxOTg4QGdtYWlsLmNvbVwifSI.aw7Wr03NAWnVXWm9r-RPPsCccqwf9g_L65QtHdqIEBw";
+        public static string ApiTokenKey = GenerateApiKey();
+
+        //public static string ApiToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.IntcIlRpbWVTdGFtcFwiOlwiMTU2NDA1NjI0OFwiLFwiRW1haWxJRFwiOlwiam95ZGVlcG5haWhhdGkxOTg4QGdtYWlsLmNvbVwifSI.aw7Wr03NAWnVXWm9r-RPPsCccqwf9g_L65QtHdqIEBw";
         public static string ApiUserName = "APIWE1536338";
-        public static string ApiPassword = "185701";
+        public static string ApiPassword = "#Aponjon@1988";
+
+        public static dynamic GenerateApiKey()
+        {
+            try
+            {
+                var dictionary = new Dictionary<string, string>();
+                dictionary.Add("secret_key", "9731-5d2c6ce61945a-795034");
+                dictionary.Add("email_id", "joydeepnaihati1988@gmail.com");
+            
+                string url = ApiUrl + "/jwt_encode";
+                    var res = GetResponseFromData(url, "POST", dictionary);
+                    return res.encode_token;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
 
         public static class PaymentAPI
         {
@@ -31,19 +52,22 @@ namespace WHITELABEL.Web.Helper
                 switch (OperatorName.ToUpper())
                 {
                     case "AIRTEL":
-                        OperatorCode = "MA";
+                        //OperatorCode = "MA";
+                        OperatorCode = "MAL";
                         break;
                     case "AIRTEL*":
                         OperatorCode = "MAL";
                         break;
                     case "IDEA":
-                        OperatorCode = "MI";
+                        //OperatorCode = "MI";
+                        OperatorCode = "MIL";
                         break;
                     case "IDEA*":
                         OperatorCode = "MIL";
                         break;
                     case "VODAFONE":
-                        OperatorCode = "MV";
+                        //OperatorCode = "MV";
+                        OperatorCode = "MVL";
                         break;
                     case "VODAFONE*":
                         OperatorCode = "MVL";
@@ -61,13 +85,15 @@ namespace WHITELABEL.Web.Helper
                         OperatorCode = "MBSL";
                         break;
                     case "AIRCEL":
-                        OperatorCode = "MAC";
+                        //OperatorCode = "MAC";
+                        OperatorCode = "MACL";
                         break;
                     case "AIRCEL*":
                         OperatorCode = "MACL";
                         break;
                     case "DOCOMO":
-                        OperatorCode = "MD";
+                        //OperatorCode = "MD";
+                        OperatorCode = "MDL";
                         break;
                     case "DOCOMO SPECIAL":
                         OperatorCode = "MDS";
@@ -85,16 +111,62 @@ namespace WHITELABEL.Web.Helper
                         OperatorCode = "MMS";
                         break;
                     case "RELIANCE JIO":
-                        OperatorCode = "MJ";
+                        //OperatorCode = "MJ";
+                        OperatorCode = "MJL";
                         break;
                     case "JIO":
-                        OperatorCode = "MJ";
+                        //OperatorCode = "MJ";
+                        OperatorCode = "MJL";
                         break;
                     case "JIO*":
                         OperatorCode = "MJL";
                         break;
                     case "TATA INDICOM":
                         OperatorCode = "MTI";
+                        break;
+
+                    case "AIRTEL POSTPAID":
+                        OperatorCode = "PA";
+                        break;
+                    case "BSNL POSTPAID":
+                        OperatorCode = "PB";
+                        break;
+                    case "IDEA POSTPAID":
+                        OperatorCode = "PI";
+                        break;
+                    case "JIO POSTPAID":
+                        OperatorCode = "PJ";
+                        break;
+                    case "TATA DOCOMO POSTPAID":
+                        OperatorCode = "PD";
+                        break;
+                    case "VODAFONE POSTPAID":
+                        OperatorCode = "PV";
+                        break;
+
+                    case "AIRTEL DIGITAL TV":
+                        OperatorCode = "DAD";
+                        break;
+                    case "AIRTEL DIGITAL TV*":
+                        OperatorCode = "DADL";
+                        break;
+                    case "DISH TV":
+                        OperatorCode = "DD";
+                        break;
+                    case "DISH TV*":
+                        OperatorCode = "DDL";
+                        break;
+                    case "TATA SKY":
+                        OperatorCode = "DTS";
+                        break;
+                    case "VIDEOCON D2H":
+                        OperatorCode = "DVD";
+                        break;
+                    case "SUN DIRECT":
+                        OperatorCode = "DS";
+                        break;
+                    case "BIG TV":
+                        OperatorCode = "DB";
                         break;
                     default:
                         OperatorCode = "";
@@ -110,9 +182,20 @@ namespace WHITELABEL.Web.Helper
                     string operatorcode = GetOperatorCode(OperatorName);
                     if (operatorcode != "")
                     {
+                        
+
+                        var dictionary = new Dictionary<string, string>();
+                        dictionary.Add("username", ApiUserName);
+                        dictionary.Add("pwd", ApiPassword);
+                        dictionary.Add("operatorcode", operatorcode);
+                        dictionary.Add("number", MobileNo);
+                        dictionary.Add("amount", Amount);
+                        dictionary.Add("client_id", "12348");
+                        dictionary.Add("token", ApiTokenKey);
+
                         string APIMsg = string.Empty;
-                        string url = ApiUrl + "/api?username=" + ApiUserName + "&pwd=" + ApiPassword + "&operatorcode="+ operatorcode + "&number="+ MobileNo + "&amount="+ Amount + "&client_id=12348&token=" + ApiToken;
-                        var res = GetResponse(url, "POST", new Dictionary<string, string>());
+                        string url = ApiUrl + "/recharge/api";
+                        var res = GetResponseFromData(url, "POST", dictionary);
                         return res;
                     }
                     else
@@ -126,14 +209,51 @@ namespace WHITELABEL.Web.Helper
                 }
             }
 
+            public static dynamic DthRechargeApiRequest(string OperatorName, string MobileNo, string Amount, string ClientId)
+            {
+                try
+                {
+                    string getApiTokenKey = GenerateApiKey();
+                    //string operatorcode = GetOperatorCode(OperatorName);
+                    //if (operatorcode != "")
+                    //{
+                    var dictionary = new Dictionary<string, string>();
+                        dictionary.Add("username", ApiUserName);
+                        dictionary.Add("pwd", ApiPassword);
+                        dictionary.Add("operatorcode", OperatorName);
+                        dictionary.Add("number", MobileNo);
+                        dictionary.Add("amount", Amount);
+                        dictionary.Add("client_id", "12348");
+                        dictionary.Add("token", getApiTokenKey);
+
+                        string APIMsg = string.Empty;
+                        string url = ApiUrl + "/recharge/api";
+                        var res = GetResponseFromData(url, "POST", dictionary);
+                        return res;
+                    //}
+                    //else
+                    //{
+                    //    return "Service is not Available!";
+                    //}
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            }
+
             public static dynamic TransactionStatus(string recharge_id)
             {
                 try
                 {
-                    string APIMsg = string.Empty;
-                    string url = ApiUrl + "/status?username=" + ApiUserName + "&pwd=" + ApiPassword + "&recharge_id=" + recharge_id + "&token=" + ApiToken;
-                    //string url = TestApiUrl + "/status?username=" + ApiUserName + "&pwd=" + ApiPassword + "&client_id=12348&token=" + ApiToken;
-                    var res = GetResponse(url, "POST", new Dictionary<string, string>());
+                    string getApiTokenKey = GenerateApiKey();
+                    var dictionary = new Dictionary<string, string>();
+                    dictionary.Add("username", ApiUserName);
+                    dictionary.Add("pwd", ApiPassword);
+                    dictionary.Add("recharge_id", recharge_id);
+                    dictionary.Add("token", getApiTokenKey);
+                    string url = ApiUrl + "/recharge/status";
+                    var res = GetResponseFromData(url, "POST", dictionary);
                     return res;
                 }
                 catch (Exception ex)
@@ -141,14 +261,19 @@ namespace WHITELABEL.Web.Helper
                     throw ex;
                 }
             }
-
+            
             public static dynamic GetAccountBalance()
             {
                 try
                 {
+                    var dictionary = new Dictionary<string, string>();
+                    dictionary.Add("username", ApiUserName);
+                    dictionary.Add("pwd", ApiPassword);
+                    dictionary.Add("token", ApiTokenKey);
+
                     string APIMsg = string.Empty;
-                    string url = ApiUrl + "/balance? username =" + ApiUserName + "&pwd=" + ApiPassword + "&token=" + ApiToken;
-                    var res = GetResponse(url, "POST", new Dictionary<string, string>());
+                    string url = ApiUrl + "/account/balance";
+                    var res = GetResponseFromData(url, "POST", dictionary);
                     return res;
                 }
                 catch (Exception ex)
@@ -156,8 +281,6 @@ namespace WHITELABEL.Web.Helper
                     throw ex;
                 }
             }
-
-
 
             public static string Validation(string agentid, string amount, string spkey, string account)
             {
@@ -817,6 +940,43 @@ namespace WHITELABEL.Web.Helper
 
         }
 
+
+        private static dynamic GetResponseFromData(string url, string method, Dictionary<string, string> param)
+        {
+            HttpResponseMessage response = new HttpResponseMessage();
+            try
+            {
+                using (HttpClient client = ClientHelper.GetClient())
+                {
+                    switch (method.ToUpper())
+                    {
+                        case "GET":
+                            {
+                                response = client.GetAsync(url).Result;
+                                break;
+                            }
+                        case "POST":
+                            {
+                                //response = client.PostAsync(url, new StringContent(JsonConvert.SerializeObject(param), Encoding.UTF8, "application/json")).Result;
+                                response = client.PostAsync(url, new FormUrlEncodedContent(param)).Result;
+                                break;
+                            }
+                        default:
+                            {
+                                throw new NotImplementedException();
+                            }
+                    }
+                    response.EnsureSuccessStatusCode();
+                    return string.IsNullOrEmpty(response.Content.ReadAsStringAsync().Result) ? response : JsonConvert.DeserializeObject<dynamic>(response.Content.ReadAsStringAsync().Result);
+                }
+            }
+            catch (Exception e)
+            {
+                // Handle exception
+                throw e;
+            }
+        }
+
         private static dynamic GetResponse<T>(string url, string method, Dictionary<string, T> param)
         {
             HttpResponseMessage response = new HttpResponseMessage();
@@ -833,7 +993,8 @@ namespace WHITELABEL.Web.Helper
                             }
                         case "POST":
                             {
-                                response = client.PostAsync(url, new StringContent(JsonConvert.SerializeObject(param), Encoding.UTF8, "application/json")).Result;
+                                //response = client.PostAsync(url, new StringContent(JsonConvert.SerializeObject(param), Encoding.UTF8, "application/json")).Result;
+                                response = client.PostAsync(url, new StringContent(JsonConvert.SerializeObject(param), Encoding.UTF8, "application/x-www-form-urlencoded")).Result;
                                 break;
                             }
                         default:

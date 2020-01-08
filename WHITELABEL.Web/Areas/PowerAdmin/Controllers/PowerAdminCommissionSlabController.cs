@@ -95,7 +95,7 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
         private IGrid<TBL_WHITE_LEVEL_COMMISSION_SLAB> CreateExportableGrid()
         {
             var db = new DBContext();
-            var CommissionSlab = db.TBL_WHITE_LEVEL_COMMISSION_SLAB.ToList();
+            var CommissionSlab = db.TBL_WHITE_LEVEL_COMMISSION_SLAB.Where(c => c.MEM_ID==0).ToList();
             IGrid<TBL_WHITE_LEVEL_COMMISSION_SLAB> grid = new Grid<TBL_WHITE_LEVEL_COMMISSION_SLAB>(CommissionSlab);
             grid.ViewContext = new ViewContext { HttpContext = HttpContext };
             grid.Query = Request.QueryString;
@@ -756,8 +756,10 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
                     string Broadband = "BROADBAND";
                     string GAS = "GAS";
                     string Landline = "LANDLINE";
+                    string Dth = "DTH";
                     var OperatorList = (from x in db.TBL_SERVICE_PROVIDERS
-                                        where x.TYPE.Contains(Electricity) || x.TYPE.StartsWith(Broadband) || x.TYPE.StartsWith(GAS) || x.TYPE.StartsWith(Landline)
+                                        where x.TYPE.Contains(Dth)
+                                        //where x.TYPE.Contains(Electricity) || x.TYPE.StartsWith(Broadband) || x.TYPE.StartsWith(GAS) || x.TYPE.StartsWith(Landline) || x.TYPE.StartsWith(Dth)
                                         select new
                                         {
                                             ID = x.ID,

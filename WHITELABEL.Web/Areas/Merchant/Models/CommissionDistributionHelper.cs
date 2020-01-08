@@ -99,7 +99,13 @@
                             };
                             db.TBL_ACCOUNTS.Add(objaccnt);
                             db.SaveChanges();
-                            decimal getPer = (Trans_Amt * MerchantComm.commPer) / 100;
+
+                            decimal getPer = 0;
+                            if (MerchantComm != null)
+                            {
+                                getPer = (Trans_Amt * MerchantComm.commPer) / 100;
+                            }
+
                             decimal CommAddClosing = SubAmt + getPer;
                             TBL_ACCOUNTS objCommPer = new TBL_ACCOUNTS()
                             {
@@ -119,6 +125,14 @@
                             };
                             db.TBL_ACCOUNTS.Add(objCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == Mem_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
                         }
                         #endregion
 
@@ -142,7 +156,12 @@
                         //                       }).FirstOrDefault();
                         #region Distributor Commission
                         //decimal DisGapComm = decimal.Parse(DistributorComm.commPer.ToString()) - decimal.Parse(MerchantComm.commPer.ToString());
-                        decimal DisGapComm = decimal.Parse(DistributorComm.commPer.ToString()) ;
+                        decimal DisGapComm = 0;
+                        if (DistributorComm != null)
+                        {
+                            DisGapComm = decimal.Parse(DistributorComm.commPer.ToString());
+                        }
+
                         decimal DisGapCommAmt = (Trans_Amt * DisGapComm) / 100;
                         var tbl_accountDistributor = db.TBL_ACCOUNTS.Where(z => z.MEM_ID == DIS_MEM_ID).OrderByDescending(z => z.TRANSACTION_TIME).FirstOrDefault();
                         if (tbl_accountDistributor != null)
@@ -181,6 +200,14 @@
                             };
                             db.TBL_ACCOUNTS.Add(objDisCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == Dis_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommDisAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
                         }
                         #endregion
                         var SuperComm = (from detailscom in db.TBL_WHITE_LEVEL_COMMISSION_SLAB
@@ -202,7 +229,12 @@
                         //                     commPer = commslabMob.COMM_PERCENTAGE
                         //                 }).FirstOrDefault();
                         //decimal SupGapComm = decimal.Parse(SuperComm.commPer.ToString()) - decimal.Parse(DistributorComm.commPer.ToString());
-                        decimal SupGapComm = decimal.Parse(SuperComm.commPer.ToString());
+
+                        decimal SupGapComm = 0;
+                        if (SuperComm != null)
+                        {
+                            SupGapComm = decimal.Parse(SuperComm.commPer.ToString());
+                        }
                         decimal SupGapCommAmt = (Trans_Amt * SupGapComm) / 100;
                         #region Super Commission
                         var tbl_accountSuper = db.TBL_ACCOUNTS.Where(z => z.MEM_ID == SUP_MEM_ID).OrderByDescending(z => z.TRANSACTION_TIME).FirstOrDefault();
@@ -239,6 +271,14 @@
                             };
                             db.TBL_ACCOUNTS.Add(objSupCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == Sup_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommSupAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
                         }
                         #endregion                        
                         var WhiteComm = (from detailscom in db.TBL_DETAILS_MEMBER_COMMISSION_SLAB
@@ -250,8 +290,13 @@
                                              SLN = commslabMob.SLN,
                                              commPer = commslabMob.COMM_PERCENTAGE
                                          }).FirstOrDefault();
-                        decimal WLComm = decimal.Parse(MerchantComm.commPer.ToString()) + decimal.Parse(DistributorComm.commPer.ToString()) + decimal.Parse(SuperComm.commPer.ToString());
-                        decimal WTLGapComm = decimal.Parse(WhiteComm.commPer.ToString()) - WLComm;
+
+                        decimal WLComm = decimal.Parse(MerchantComm!=null? MerchantComm.commPer.ToString():"0") + decimal.Parse(DistributorComm!=null?DistributorComm.commPer.ToString():"0") + decimal.Parse(SuperComm!=null?SuperComm.commPer.ToString():"0");
+                        decimal WTLGapComm = 0;
+                        if (WhiteComm != null)
+                        {
+                            WTLGapComm = decimal.Parse(WhiteComm.commPer.ToString()) - WLComm;
+                        }
                         //decimal WTLGapComm = decimal.Parse(WhiteComm.commPer.ToString());
                         //decimal WTLGapComm =WLComm;
                         decimal WTLGapCommAmt = (Trans_Amt * WTLGapComm) / 100;
@@ -291,8 +336,18 @@
                             };
                             db.TBL_ACCOUNTS.Add(objWLCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == WL_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommWLAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
+
                         }
                         #endregion
+
                         ContextTransaction.Commit();
                         return "Success";
                     }
@@ -351,7 +406,8 @@
                             };
                             db.TBL_ACCOUNTS.Add(objaccnt);
                             db.SaveChanges();
-                            decimal getPer = (Trans_Amt * MerchantComm.commPer) / 100;
+
+                            decimal getPer = (Trans_Amt * (MerchantComm!=null? MerchantComm.commPer:0)) / 100;
                             decimal CommAddClosing = SubAmt + getPer;
                             TBL_ACCOUNTS objCommPer = new TBL_ACCOUNTS()
                             {
@@ -371,6 +427,15 @@
                             };
                             db.TBL_ACCOUNTS.Add(objCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == Mem_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
+
                         }
                         #endregion
 
@@ -395,7 +460,7 @@
                         //                       }).FirstOrDefault();
                         #region Distributor Commission
                         //decimal DisGapComm = decimal.Parse(DistributorComm.commPer.ToString()) - decimal.Parse(MerchantComm.commPer.ToString());
-                        decimal DisGapComm = decimal.Parse(DistributorComm.commPer.ToString());
+                        decimal DisGapComm = decimal.Parse(DistributorComm!=null?DistributorComm.commPer.ToString():"0");
                         decimal DisGapCommAmt = (Trans_Amt * DisGapComm) / 100;
                         var tbl_accountDistributor = db.TBL_ACCOUNTS.Where(z => z.MEM_ID == DIS_MEM_ID).OrderByDescending(z => z.TRANSACTION_TIME).FirstOrDefault();
                         if (tbl_accountDistributor != null)
@@ -434,6 +499,14 @@
                             };
                             db.TBL_ACCOUNTS.Add(objDisCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == Dis_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommDisAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
                         }
                         #endregion
                         //var SuperComm = (from detailscom in db.TBL_DETAILS_MEMBER_COMMISSION_SLAB
@@ -456,7 +529,7 @@
                                              commPer = commslabMob.SUPER_COM_PER
                                          }).FirstOrDefault();
                         //decimal SupGapComm = decimal.Parse(SuperComm.commPer.ToString()) - decimal.Parse(DistributorComm.commPer.ToString());
-                        decimal SupGapComm = decimal.Parse(SuperComm.commPer.ToString()) ;
+                        decimal SupGapComm = decimal.Parse(SuperComm!=null?SuperComm.commPer.ToString():"0") ;
                         decimal SupGapCommAmt = (Trans_Amt * SupGapComm) / 100;
                         #region Super Commission
                         var tbl_accountSuper = db.TBL_ACCOUNTS.Where(z => z.MEM_ID == SUP_MEM_ID).OrderByDescending(z => z.TRANSACTION_TIME).FirstOrDefault();
@@ -493,6 +566,14 @@
                             };
                             db.TBL_ACCOUNTS.Add(objSupCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == Sup_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommSupAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
                         }
                         #endregion                        
                         var WhiteComm = (from detailscom in db.TBL_DETAILS_MEMBER_COMMISSION_SLAB
@@ -504,9 +585,9 @@
                                              SLN = commslabMob.SLN,
                                              commPer = commslabMob.COMM_PERCENTAGE
                                          }).FirstOrDefault();
-                        decimal WL_Com = decimal.Parse(MerchantComm.commPer.ToString()) + decimal.Parse(DistributorComm.commPer.ToString()) + decimal.Parse(SuperComm.commPer.ToString());
+                        decimal WL_Com = decimal.Parse(MerchantComm!=null?MerchantComm.commPer.ToString():"0") + decimal.Parse(DistributorComm!=null?DistributorComm.commPer.ToString():"0") + decimal.Parse(SuperComm!=null?SuperComm.commPer.ToString():"0");
 
-                        decimal WTLGapComm = decimal.Parse(WhiteComm.commPer.ToString()) - WL_Com;
+                        decimal WTLGapComm = decimal.Parse(WhiteComm!=null?WhiteComm.commPer.ToString():"0") - WL_Com;
                         //decimal WTLGapComm = decimal.Parse(WhiteComm.commPer.ToString()) - decimal.Parse(SuperComm.commPer.ToString());
                         decimal WTLGapCommAmt = (Trans_Amt * WTLGapComm) / 100;
                         #region White level Commission payment Structure
@@ -545,6 +626,14 @@
                             };
                             db.TBL_ACCOUNTS.Add(objWLCommPer);
                             db.SaveChanges();
+
+                            var getmemberInfo = db.TBL_MASTER_MEMBER.Where(x => x.MEM_ID == WL_ID).FirstOrDefault();
+                            if (getmemberInfo != null)
+                            {
+                                getmemberInfo.BALANCE = CommWLAddClosing;
+                                db.Entry(getmemberInfo).State = System.Data.Entity.EntityState.Modified;
+                                db.SaveChanges();
+                            }
                         }
                         #endregion
                         ContextTransaction.Commit();

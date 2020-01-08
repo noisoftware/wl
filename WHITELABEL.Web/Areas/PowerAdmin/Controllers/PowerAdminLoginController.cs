@@ -53,7 +53,7 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
                     var GetUser = await db.TBL_AUTH_ADMIN_USERS.SingleOrDefaultAsync(x => x.USER_EMAIL == User.Email);
                     if (GetUser != null)
                     {
-                        if (!GetUser.ACTIVE_USER || !GetUser.USER_PASSWORD_MD5.VerifyHashedPassword(User.Password))
+                        if (!GetUser.ACTIVE_USER || GetUser.USER_PASSWORD_MD5 != User.Password)
                         {
                             ViewBag.Message = "Invalid Credential or Access Denied";
                             return View();
@@ -85,7 +85,6 @@ namespace WHITELABEL.Web.Areas.PowerAdmin.Controllers
                 return RedirectToAction("Index", "PowerAdminHome", new { area = "PowerAdmin" });
                 //Response.Redirect(Url.Action("Index", "PowerAdminLogin", new { area = "PowerAdmin" }));
             }
-            return View();
         }
 
         [AllowAnonymous]

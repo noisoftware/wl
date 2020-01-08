@@ -324,7 +324,7 @@ namespace WHITELABEL.Web.Areas.Super.Controllers
                         CheckUser.INTRODUCER = MemberCurrentUser.MEM_ID;
                         CheckUser.AADHAAR_NO = value.AADHAAR_NO;
                         CheckUser.PAN_NO = value.PAN_NO;
-                        CheckUser.MEMBER_MOBILE = value.MEMBER_MOBILE;
+                        //CheckUser.MEMBER_MOBILE = value.MEMBER_MOBILE;
                         //CheckUser.UNDER_WHITE_LEVEL = value.UNDER_WHITE_LEVEL;
                         CheckUser.MEMBER_MOBILE = value.MEMBER_MOBILE;
                         CheckUser.MEMBER_NAME = value.MEMBER_NAME;
@@ -334,7 +334,7 @@ namespace WHITELABEL.Web.Areas.Super.Controllers
                         CheckUser.ADDRESS = value.ADDRESS;
                         CheckUser.CITY = value.CITY;
                         CheckUser.PIN = value.PIN;
-                        //CheckUser.EMAIL_ID = value.EMAIL_ID;
+                        CheckUser.EMAIL_ID = value.EMAIL_ID;
                         CheckUser.SECURITY_PIN_MD5 = value.SECURITY_PIN_MD5;
                         CheckUser.BLOCKED_BALANCE = value.BLOCKED_BALANCE;
                         db.Entry(CheckUser).State = System.Data.Entity.EntityState.Modified;
@@ -512,8 +512,8 @@ namespace WHITELABEL.Web.Areas.Super.Controllers
             grid.Columns.Add(model => model.MEMBER_NAME).Titled("Name").Filterable(true).Sortable(true);
             grid.Columns.Add(model => model.COMPANY).Titled("Company").Filterable(true).Sortable(true);
             grid.Columns.Add(model => model.MEMBER_MOBILE).Titled("Mobile").Filterable(true).Sortable(true);
-            //grid.Columns.Add(model => model.BALANCE).Titled("Balance").Filterable(true).Sortable(true);
-            grid.Columns.Add(model => model.BLOCKED_BALANCE).Titled("Balance").Filterable(true).Sortable(true);
+            grid.Columns.Add(model => model.BALANCE).Titled("Balance").Filterable(true).Sortable(true);
+            //grid.Columns.Add(model => model.BLOCKED_BALANCE).Titled("Balance").Filterable(true).Sortable(true);
             //grid.Columns.Add(model => model.MEM_ID).Titled("").Encoded(false).Filterable(false).Sortable(false)
             //     .RenderedAs(model => "<div class='btn-group btn-group-xs' style='width:280px'><a href='javascript:void(0)' class='btn btn-denger' onclick='SendMailToMember(" + model.MEM_ID + ");return 0;'>Password</a><a href='MemberAPILabel/CreateMember?memid=" + Encrypt.EncryptMe(model.MEM_ID.ToString()) + "' class='btn btn-primary'>Edit</a><a href='Hosting/HostingDetails?memid=" + Encrypt.EncryptMe(model.MEM_ID.ToString()) + "' class='btn btn-primary'>Hosting</a><a href='Service/ServiceDetails?memid=" + Encrypt.EncryptMe(model.MEM_ID.ToString()) + "' class='btn btn-primary'>Service</a></div>");
             //grid.Columns.Add(model => model.MEM_ID).Titled("").Encoded(false).Filterable(false).Sortable(false)
@@ -544,6 +544,22 @@ namespace WHITELABEL.Web.Areas.Super.Controllers
         {
             var context = new DBContext();
             var User = await context.TBL_MASTER_MEMBER.Where(model => model.EMAIL_ID == emailid).FirstOrDefaultAsync();
+            if (User != null)
+            {
+                return Json(new { result = "unavailable" });
+            }
+            else
+            {
+                return Json(new { result = "available" });
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> CheckMobileNoAvailability(string mobile)
+        {
+            var context = new DBContext();
+            var User = await context.TBL_MASTER_MEMBER.Where(model => model.MEMBER_MOBILE == mobile).FirstOrDefaultAsync();
             if (User != null)
             {
                 return Json(new { result = "unavailable" });

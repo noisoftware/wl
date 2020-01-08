@@ -110,6 +110,12 @@ namespace WHITELABEL.Web.Areas.Super.Controllers
                             AddAmount = closingamt - decimal.Parse(obj_bal.AMOUNT.ToString());
                         }
                     }
+                    else
+                    {
+                        closingamt = obj_bal.AMOUNT;
+                        AddAmount = obj_bal.AMOUNT;
+                    }
+
                     TBL_ACCOUNTS objaccnt = new TBL_ACCOUNTS()
                     {
                         API_ID = 0,

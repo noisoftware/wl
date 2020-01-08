@@ -6690,6 +6690,7 @@
     <Content Include="Areas\Admin\Views\MemberCommissionSlab\GenerateCommissionSlab.cshtml" />
     <Content Include="Areas\Merchant\Views\MerchantRechargeService\CallBack.cshtml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\gridmvc.js" />
     <Content Include="Scripts\gridmvc.lang.ru.js" />

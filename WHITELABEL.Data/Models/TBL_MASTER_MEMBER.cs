@@ -56,7 +56,7 @@
         [RegularExpression("^[0-9]*$", ErrorMessage = "Pin Code must be number")]
         public string PIN { get; set; }
 
-        [Required]
+        //[Required]
         [Display(Name = "Email")]
         [DataType(DataType.EmailAddress)]
         [MaxLength(150, ErrorMessage = "Email is not greater then 150 digit")]
@@ -67,8 +67,8 @@
         [Required]
         [Display(Name = "Password")]
         //[DataType(DataType.Password)]
-        [MaxLength(12, ErrorMessage = "Password not greater then 12 digit")]
-        [MinLength(10, ErrorMessage = "Password not less then 10 digit")]        
+        [MaxLength(10, ErrorMessage = "Password not greater then 10 digit")]
+        [MinLength(6, ErrorMessage = "Password not less then 6 digit")]        
         [Column("PASSWORD_MD5")]
         public string User_pwd { get; set; }
 

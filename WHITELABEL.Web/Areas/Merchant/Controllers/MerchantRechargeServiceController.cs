@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Data.Entity;
 using log4net;
 using System.Web.Security;
+using System.IO;
 
 namespace WHITELABEL.Web.Areas.Merchant.Controllers
 {
@@ -73,7 +74,8 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
         public ActionResult Index()
         {
             if (Session["MerchantUserId"] != null)
-            {                
+            {
+               
                 var db = new DBContext();
                 initpage();
                 var checkList = (from user in db.TBL_WHITELABLE_SERVICE
@@ -189,6 +191,23 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
 
         }
 
+        private void GenerateLog(string message)
+        {
+            string msg = "";
+            msg+= string.Format("Time: {0}", DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
+            msg += Environment.NewLine;
+            msg += "-----------------------------------------------------------";
+            msg += message;
+            msg += Environment.NewLine;
+            msg += "-----------------------------------------------------------";
+            string path = Server.MapPath("~/ErrorLog/ErrorLog.txt");
+            using (StreamWriter writer = new StreamWriter(path, true))
+            {
+                writer.WriteLine(msg);
+                writer.Close();
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<JsonResult> PostMobileRecharge(MobileRechargeModel objval)
@@ -199,8 +218,8 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
                 var check_walletAmt=db.TBL_ACCOUNTS.Where(x=>x.MEM_ID==CurrentMerchant.MEM_ID).OrderByDescending(z => z.TRANSACTION_TIME).FirstOrDefault();
                 if (objval.RechargeAmt <= check_walletAmt.CLOSING)
                 {
-                    //const string agentId = "2"; 
-                    const string agentId = "12348";
+                    string agentId = Convert.ToString(Session["MerchantUserId"]); 
+                    //const string agentId = "12348";
                     string OperatorName = Request.Form["OperatorName"];
                     string operatorId = Request.Form["OperatorId"];
                     long merchantid = 0;
@@ -210,24 +229,28 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
                     //**********************Start apiscript recharge bill api integration************************
                     string errorcode = "";
 
-                    //var AccountBalanceResponse = PaymentAPI.GetAccountBalance();
-                    //errorcode = AccountBalanceResponse.message;
-                    //if (AccountBalanceResponse.message == "Success")
-                    //{
-                    //    decimal AccountBalance = Convert.ToDecimal(AccountBalanceResponse.balance==""?"0": AccountBalanceResponse.balance);
-                    //    if (AccountBalance !=0)
-                    //    {
+                    var AccountBalanceResponse = PaymentAPI.GetAccountBalance();
+                    GenerateLog(Convert.ToString(AccountBalanceResponse));
+                    errorcode = AccountBalanceResponse.message;
+                    if (AccountBalanceResponse.message == "Success")
+                    {
+                        decimal AccountBalance = Convert.ToDecimal(AccountBalanceResponse.balance == "" ? "0" : AccountBalanceResponse.balance);
+                        if (AccountBalance != 0)
+                        {
 
                             var RechargeApiResponse = PaymentAPI.RechargeApiRequest(OperatorName, objval.ContactNo, objval.RechargeAmt.ToString(), agentId);
+                            GenerateLog(Convert.ToString(RechargeApiResponse));
                             errorcode = RechargeApiResponse.message;
+
                             if (RechargeApiResponse.message == "Your recharge request is accepted.")
                             {
                                 string status = RechargeApiResponse.recharge_status;
                                 var ipat_id = "";
                                 decimal trans_amt = decimal.Parse(Convert.ToString(RechargeApiResponse.amount));
                                 decimal Charged_Amt = decimal.Parse(Convert.ToString(RechargeApiResponse.amount));
+                                //decimal Opening_Balance = check_walletAmt.CLOSING;
                                 decimal Opening_Balance = 0;
-                                string getStatus = RechargeApiResponse.recharge_status== "Pending" ? "SUCCESS": RechargeApiResponse.recharge_status;
+                                string getStatus = RechargeApiResponse.recharge_status == "Pending" ? "SUCCESS" : RechargeApiResponse.recharge_status;
                                 string getmessage = RechargeApiResponse.message == "Your recharge request is accepted." ? "Transaction Successful" : RechargeApiResponse.message;
 
                                 DateTime datevalue = Convert.ToDateTime(RechargeApiResponse.recharge_datetime);
@@ -242,9 +265,11 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
                                     Charged_Amt = decimal.Parse(Charged_Amt.ToString()),
                                     Opening_Balance = decimal.Parse(Opening_Balance.ToString()),
                                     DateVal = System.DateTime.Now,
-                                    Status = getStatus,
+                                    //Status = getStatus,
+                                    Status = RechargeApiResponse.recharge_status,
                                     Res_Code = "",
-                                    res_msg = getmessage,
+                                    //res_msg = getmessage,
+                                    res_msg = RechargeApiResponse.message,
                                     Mem_ID = merchantid,
                                     RechargeType = objval.PrepaidRecharge
                                 };
@@ -253,39 +278,55 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
 
                                 string recharge_id = Convert.ToString(RechargeApiResponse.recharge_id);
                                 var TransactionStatusResponse = PaymentAPI.TransactionStatus(recharge_id);
+                                GenerateLog(Convert.ToString(TransactionStatusResponse));
                                 errorcode = TransactionStatusResponse.message;
+                               
                                 if (TransactionStatusResponse.message == "Record found")
                                 {
-                                    string statuscheck = TransactionStatusResponse.recharge_status;
-                                    string outputval = TransactionStatusResponse.message;
+                                    // string statuscheck = TransactionStatusResponse.recharge_status;
+                                    // string outputval = TransactionStatusResponse.message;
                                     var rechargestatuscheck = await db.TBL_INSTANTPAY_RECHARGE_RESPONSE.Where(x => x.Opr_Id == recharge_id).FirstOrDefaultAsync();
-                                    rechargestatuscheck.Status = statuscheck;
+                                    rechargestatuscheck.Status = getStatus;
+                                    rechargestatuscheck.res_msg = getmessage;
                                     db.Entry(rechargestatuscheck).State = System.Data.Entity.EntityState.Modified;
                                     await db.SaveChangesAsync();
-                                    // CommissionDistributionHelper objComm = new CommissionDistributionHelper();
-                                    //  string valueComm = objComm.DistributeCommission(merchantid, "MOBILE", objval.RechargeAmt, Charged_Amt, Opening_Balance, operatorId, "Mobile Recharge");
 
-                                    return Json(outputval);
+                                    CommissionDistributionHelper objComm = new CommissionDistributionHelper();
+                                    string valueComm = objComm.DistributeCommission(merchantid, "MOBILE", objval.RechargeAmt, Charged_Amt, Opening_Balance, operatorId, "Mobile Recharge");
+
+                                    return Json(getmessage);
                                     //return Json(errorcode);
                                 }
-                                //return Json(errorcode);
-                                return Json(getmessage);
+                                //CommissionDistributionHelper objComm = new CommissionDistributionHelper();
+                                //string valueComm = objComm.DistributeCommission(merchantid, "MOBILE", objval.RechargeAmt, Charged_Amt, Opening_Balance, operatorId, "Mobile Recharge");
+
+                                //return Json(getmessage);
+                                return Json("Recharge Pending");
                             }
                             else
                             {
                                 return Json(errorcode);
                             }
-                    //    }
-                    //    else
-                    //    {
-                    //        errorcode = "Insufficient Balance";
-                    //        return Json(errorcode);
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    return Json(errorcode);
-                    //}
+
+
+                            // return Json("");
+                        }
+                        else
+                        {
+                            //errorcode = "Insufficient Balance";
+                            errorcode = "Something problem. Please contact service provider.";
+                            return Json(errorcode);
+                        }
+                    }
+                    else
+                    {
+                        return Json(errorcode);
+                    }
+
+                    //CommissionDistributionHelper objComm = new CommissionDistributionHelper();
+                    //string valueComm = objComm.DistributeCommission(merchantid, "MOBILE", 1, 1, 0, operatorId, "Mobile Recharge");
+
+                    //return Json("");
 
 
                     //**********************End apiscript recharge bill api integration************************
@@ -411,6 +452,7 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
                                      {
                                          label = oper.SERVICE_NAME,
                                          val = oper.SERVICE_KEY
+                                         //val = oper.SERVICE_NAME
                                      }).ToListAsync();
 
                 return Json(OperatorValue);
@@ -450,73 +492,175 @@ namespace WHITELABEL.Web.Areas.Merchant.Controllers
                 var check_walletAmt = db.TBL_ACCOUNTS.Where(x => x.MEM_ID == CurrentMerchant.MEM_ID).OrderByDescending(z => z.TRANSACTION_TIME).FirstOrDefault();
                 if (objval.RechargeAmt <= check_walletAmt.CLOSING)
                 {
-                    const string agentId = "395Y36706";
+                    string agentId = Convert.ToString(Session["MerchantUserId"]);
+                    //const string agentId = "395Y36706";
                     string OperatorName = Request.Form["DTHOperatorName"];
                     string operatorId = Request.Form["DTHOperatorId"];
                     long merchantid = 0;
                     long.TryParse(Session["MerchantUserId"].ToString(), out merchantid);
 
                     var authcode = await db.TBL_API_SETTING.Where(x => x.NAME == "API_AUTHCODE").FirstOrDefaultAsync();
-                    var PaymentValidation = PaymentAPI.Validation(agentId, objval.RechargeAmt.ToString(), operatorId, objval.ContactNo);
-                    if (PaymentValidation == "TXN")
+                    //**********************Start apiscript recharge bill api integration************************
+                    string errorcode = "";
+
+                    //var AccountBalanceResponse = PaymentAPI.GetAccountBalance();
+                    //errorcode = AccountBalanceResponse.message;
+                    //if (AccountBalanceResponse.message == "Success")
+                    //{
+                    //    decimal AccountBalance = Convert.ToDecimal(AccountBalanceResponse.balance==""?"0": AccountBalanceResponse.balance);
+                    //    if (AccountBalance !=0)
+                    //    {
+
+
+                    var RechargeApiResponse = PaymentAPI.DthRechargeApiRequest(OperatorName, objval.ContactNo, objval.RechargeAmt.ToString(), agentId);
+                    GenerateLog(Convert.ToString(RechargeApiResponse));
+                    errorcode = RechargeApiResponse.message;
+                    if (RechargeApiResponse.message == "Your recharge request is accepted.")
                     {
-                        var Recharge = PaymentAPI.Payment(agentId, objval.RechargeAmt.ToString(), operatorId, objval.ContactNo);
-                        string errorcode = string.IsNullOrEmpty(Recharge.res_code.Value) ? Recharge.ipay_errordesc.Value : Recharge.res_code.Value;//res.res_code;
-                        if (errorcode == "TXN")
+                        string status = RechargeApiResponse.recharge_status;
+                        var ipat_id = "";
+                        decimal trans_amt = decimal.Parse(Convert.ToString(RechargeApiResponse.amount));
+                        decimal Charged_Amt = decimal.Parse(Convert.ToString(RechargeApiResponse.amount));
+                        //decimal Opening_Balance = check_walletAmt.CLOSING;
+                        decimal Opening_Balance = 0;
+                        string getStatus = RechargeApiResponse.recharge_status == "Pending" ? "SUCCESS" : RechargeApiResponse.recharge_status;
+                        string getmessage = RechargeApiResponse.message == "Your recharge request is accepted." ? "Transaction Successful" : RechargeApiResponse.message;
+
+                        DateTime datevalue = Convert.ToDateTime(RechargeApiResponse.recharge_datetime);
+                        TBL_INSTANTPAY_RECHARGE_RESPONSE insta = new TBL_INSTANTPAY_RECHARGE_RESPONSE()
                         {
+                            Ipay_Id = ipat_id,
+                            AgentId = RechargeApiResponse.client_id,
+                            Opr_Id = RechargeApiResponse.recharge_id,
+                            AccountNo = RechargeApiResponse.number,
+                            Sp_Key = "",
+                            Trans_Amt = decimal.Parse(trans_amt.ToString()),
+                            Charged_Amt = decimal.Parse(Charged_Amt.ToString()),
+                            Opening_Balance = decimal.Parse(Opening_Balance.ToString()),
+                            DateVal = System.DateTime.Now,
+                            Status = RechargeApiResponse.recharge_status,
+                            Res_Code = "",
+                            res_msg = RechargeApiResponse.message,
+                            Mem_ID = merchantid,
+                            RechargeType = objval.PrepaidRecharge
+                        };
+                        db.TBL_INSTANTPAY_RECHARGE_RESPONSE.Add(insta);
+                        await db.SaveChangesAsync();
 
-                            string status = Recharge.status;
-                            var ipat_id = Recharge.ipay_id.Value;
-                            decimal trans_amt = decimal.Parse(Convert.ToString(Recharge.trans_amt.Value));
-                            decimal Charged_Amt = decimal.Parse(Convert.ToString(Recharge.charged_amt.Value));
-                            decimal Opening_Balance = decimal.Parse(Convert.ToString(Recharge.opening_bal.Value));
-                            DateTime datevalue = Convert.ToDateTime(Recharge.datetime.Value);
-
-
-                            TBL_INSTANTPAY_RECHARGE_RESPONSE insta = new TBL_INSTANTPAY_RECHARGE_RESPONSE()
-                            {
-                                Ipay_Id = ipat_id,
-                                AgentId = Recharge.agent_id.Value,
-                                Opr_Id = Recharge.opr_id.Value,
-                                AccountNo = Recharge.account_no.Value,
-                                Sp_Key = Recharge.sp_key.Value,
-                                Trans_Amt = trans_amt,
-                                Charged_Amt = Charged_Amt,
-                                Opening_Balance = Opening_Balance,
-                                DateVal = System.DateTime.Now,
-                                Status = Recharge.status.Value,
-                                Res_Code = Recharge.res_code.Value,
-                                res_msg = Recharge.res_msg.Value,
-                                Mem_ID = merchantid,
-                                RechargeType = objval.PrepaidRecharge
-                            };
-                            db.TBL_INSTANTPAY_RECHARGE_RESPONSE.Add(insta);
-                            await db.SaveChangesAsync();
-                            var checksts = PaymentAPI.StatusCheck(agentId);
-                            string checkval = checksts.res_code;//res.res_code;
-                            string statuscheck = checksts.status;
-                            string outputval = checksts.res_msg;
-                            string ipayidval = checksts.ipay_id;
-                            var rechargestatuscheck = await db.TBL_INSTANTPAY_RECHARGE_RESPONSE.Where(x => x.Ipay_Id == ipayidval).FirstOrDefaultAsync();
-                            rechargestatuscheck.Status = statuscheck;
+                        string recharge_id = Convert.ToString(RechargeApiResponse.recharge_id);
+                        var TransactionStatusResponse = PaymentAPI.TransactionStatus(recharge_id);
+                        GenerateLog(Convert.ToString(TransactionStatusResponse));
+                        errorcode = TransactionStatusResponse.message;
+                        if (TransactionStatusResponse.message == "Record found")
+                        {
+                            //string statuscheck = TransactionStatusResponse.recharge_status;
+                            //string outputval = TransactionStatusResponse.message;
+                            var rechargestatuscheck = await db.TBL_INSTANTPAY_RECHARGE_RESPONSE.Where(x => x.Opr_Id == recharge_id).FirstOrDefaultAsync();
+                            rechargestatuscheck.Status = getStatus;
+                            rechargestatuscheck.res_msg = getmessage;
                             db.Entry(rechargestatuscheck).State = System.Data.Entity.EntityState.Modified;
                             await db.SaveChangesAsync();
+
                             CommissionDistributionHelper objComm = new CommissionDistributionHelper();
-                            string valueComm = objComm.DistributeCommission(merchantid, "UTILITY", objval.RechargeAmt, Charged_Amt, Opening_Balance, operatorId, "DTH Recharge");
-                            //Session["msgCheck"] = "Transaction Successful";
-                            return Json(outputval);
-                        }
-                        else
-                        {
-                            //Session["msgCheck"] = Recharge;
-                            return Json(errorcode);
+                            string valueComm = objComm.DistributeCommission(merchantid, "UTILITY", objval.RechargeAmt, Charged_Amt, Opening_Balance, OperatorName, "DTH Recharge");
+                            return Json(getmessage);
+                            //return Json(errorcode);
                         }
 
+                        //CommissionDistributionHelper objComm = new CommissionDistributionHelper();
+                        //string valueComm = objComm.DistributeCommission(merchantid, "UTILITY", objval.RechargeAmt, Charged_Amt, Opening_Balance, OperatorName, "DTH Recharge");
+                        //return Json(getmessage);
+
+                        //return Json(errorcode);
+                        return Json("Recharge Pending");
                     }
                     else
                     {
-                        return Json(PaymentValidation);
+                        return Json(errorcode);
                     }
+
+
+                    //CommissionDistributionHelper objComm = new CommissionDistributionHelper();
+                    ////string valueComm = objComm.DistributeCommission(merchantid, "UTILITY", objval.RechargeAmt, Charged_Amt, Opening_Balance, OperatorName, "DTH Recharge");
+                    //string valueComm = objComm.DistributeCommission(merchantid, "UTILITY", 100, 100, 0, OperatorName, "DTH Recharge");
+                    //return Json("");
+
+                    //    }
+                    //    else
+                    //    {
+                    //        errorcode = "Insufficient Balance";
+                    //        return Json(errorcode);
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    return Json(errorcode);
+                    //}
+
+                    //return Json("");
+
+                    //**********************End apiscript recharge bill api integration************************
+
+                    //var PaymentValidation = PaymentAPI.Validation(agentId, objval.RechargeAmt.ToString(), operatorId, objval.ContactNo);
+                    //if (PaymentValidation == "TXN")
+                    //{
+                    //    var Recharge = PaymentAPI.Payment(agentId, objval.RechargeAmt.ToString(), operatorId, objval.ContactNo);
+                    //    string errorcode = string.IsNullOrEmpty(Recharge.res_code.Value) ? Recharge.ipay_errordesc.Value : Recharge.res_code.Value;//res.res_code;
+                    //    if (errorcode == "TXN")
+                    //    {
+
+                    //        string status = Recharge.status;
+                    //        var ipat_id = Recharge.ipay_id.Value;
+                    //        decimal trans_amt = decimal.Parse(Convert.ToString(Recharge.trans_amt.Value));
+                    //        decimal Charged_Amt = decimal.Parse(Convert.ToString(Recharge.charged_amt.Value));
+                    //        decimal Opening_Balance = decimal.Parse(Convert.ToString(Recharge.opening_bal.Value));
+                    //        DateTime datevalue = Convert.ToDateTime(Recharge.datetime.Value);
+
+
+                    //        TBL_INSTANTPAY_RECHARGE_RESPONSE insta = new TBL_INSTANTPAY_RECHARGE_RESPONSE()
+                    //        {
+                    //            Ipay_Id = ipat_id,
+                    //            AgentId = Recharge.agent_id.Value,
+                    //            Opr_Id = Recharge.opr_id.Value,
+                    //            AccountNo = Recharge.account_no.Value,
+                    //            Sp_Key = Recharge.sp_key.Value,
+                    //            Trans_Amt = trans_amt,
+                    //            Charged_Amt = Charged_Amt,
+                    //            Opening_Balance = Opening_Balance,
+                    //            DateVal = System.DateTime.Now,
+                    //            Status = Recharge.status.Value,
+                    //            Res_Code = Recharge.res_code.Value,
+                    //            res_msg = Recharge.res_msg.Value,
+                    //            Mem_ID = merchantid,
+                    //            RechargeType = objval.PrepaidRecharge
+                    //        };
+                    //        db.TBL_INSTANTPAY_RECHARGE_RESPONSE.Add(insta);
+                    //        await db.SaveChangesAsync();
+                    //        var checksts = PaymentAPI.StatusCheck(agentId);
+                    //        string checkval = checksts.res_code;//res.res_code;
+                    //        string statuscheck = checksts.status;
+                    //        string outputval = checksts.res_msg;
+                    //        string ipayidval = checksts.ipay_id;
+                    //        var rechargestatuscheck = await db.TBL_INSTANTPAY_RECHARGE_RESPONSE.Where(x => x.Ipay_Id == ipayidval).FirstOrDefaultAsync();
+                    //        rechargestatuscheck.Status = statuscheck;
+                    //        db.Entry(rechargestatuscheck).State = System.Data.Entity.EntityState.Modified;
+                    //        await db.SaveChangesAsync();
+                    //        CommissionDistributionHelper objComm = new CommissionDistributionHelper();
+                    //        string valueComm = objComm.DistributeCommission(merchantid, "UTILITY", objval.RechargeAmt, Charged_Amt, Opening_Balance, operatorId, "DTH Recharge");
+                    //        //Session["msgCheck"] = "Transaction Successful";
+                    //        return Json(outputval);
+                    //    }
+                    //    else
+                    //    {
+                    //        //Session["msgCheck"] = Recharge;
+                    //        return Json(errorcode);
+                    //    }
+
+                    //}
+                    //else
+                    //{
+                    //    return Json(PaymentValidation);
+                    //}
                 }
                 else
                 {

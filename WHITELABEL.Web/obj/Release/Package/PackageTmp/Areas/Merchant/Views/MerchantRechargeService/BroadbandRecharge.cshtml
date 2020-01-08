@@ -1,0 +1,47 @@
+﻿@model WHITELABEL.Web.Areas.Merchant.Models.BroadbandViewModel
+@{
+    ViewBag.Title = "BroadbandRecharge";
+    //Layout = "~/Areas/Merchant/Views/Shared/_MerchantLayout.cshtml";
+}
+
+@using (Ajax.BeginForm("PostBroadbandRecharge", "MerchantRechargeService", new AjaxOptions { OnSuccess = "OnSuccess", OnFailure = "OnFailure", LoadingElementId = "progress" }, new { area = "Merchant" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="panel-body">
+        <h5>Broadband Payment</h5>
+        <form>
+            <div class="clearfix"></div>
+            <div class="col-md-5">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"> </div>*@
+                        @Html.EditorFor(m => m.PhoneNo, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Registered Phone No." } })
+                        <label for="exampleInput1">@*Registered Phone No.*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.PhoneNo, "", new { @class = "text-danger" })</small></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"> </div>*@
+                        @Html.EditorFor(m => m.RechargeAmount, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Amount" } })                        
+                        <label for="amount">@*Amount*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.RechargeAmount, "", new { @class = "text-danger" })</small></span>
+                   
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class=" floating-label">
+                    @*<div class="input-wrapper"></div>*@
+                        @Html.EditorFor(m => m.ServiceName, new { htmlAttributes = new { @style = "width:100%; padding:5px;", placeholder = "Operator Name", id = "txtBroadbandOperator" } })
+                        <input type="hidden" id="hfbroadbandperator" name="broadbandoperId" />
+                        <label for="exampleInput1">@*Operator Name*@</label>
+                        <span class="help-block"><small>@Html.ValidationMessageFor(model => model.ServiceName, "", new { @class = "text-danger" })</small></span>
+                    
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <input type="submit" value="Pay" class="btn btn-primary btn-lg" id="btnsubmitDTH" />
+           
+        </form>
+    </div>
+}
+
